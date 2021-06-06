@@ -7,13 +7,10 @@ const Ads = require("../models/Ads");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "./uploads/");
+    cb(null, "./Images/");
   },
   filename: (req, file, cb) => {
-    cb(
-      null,
-      file.filename + "-" + Date.now() + path.extname(file.originalname)
-    );
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 
@@ -34,15 +31,33 @@ const upload = multer({
 });
 
 router.post("/", upload.array("images"), (req, res, next) => {
-  console.log(req.file);
-  const Adss = new Ads({
-    mainTitle: req.body.mainTitle,
-    km: req.body.km,
-    price: req.body.price,
-    description: req.body.description,
-    images: req.file.path,
-  });
-  const promise = Adss.save();
+  try {
+    console.log(req.files, req.body.km, req.body.mainTitle);
+
+    const Adss = new Ads({
+      mainTitle: req.body.mainTitle,
+      km: req.body.km,
+      price: req.body.price,
+      description: req.body.description,
+      images: req.files.map((file) => file.path),
+    });
+
+    const promise = Adss.save();
+    promise
+      .then((data) => {
+        res.json(data);
+      })
+      .catch((err) => {
+        res.json(err);
+      });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.get("/listAll", (req, res) => {
+  const promise = Ads.find({});
+
   promise
     .then((data) => {
       res.json(data);
@@ -50,10 +65,6 @@ router.post("/", upload.array("images"), (req, res, next) => {
     .catch((err) => {
       res.json(err);
     });
-});
-
-router.post("/add", (req, res) => {
-  res.json("sdasa");
 });
 
 module.exports = router;

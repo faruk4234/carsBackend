@@ -46,7 +46,7 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/ads", adx);
 
-app.use("/uploads", express.static("uploads"));
+app.use("/Images", express.static("Images"));
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
